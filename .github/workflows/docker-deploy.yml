@@ -38,7 +38,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
             docker stop house-price-api || true
             docker rm house-price-api || true
-            docker run -d -p 8025:8025 --name house-price-api ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
+            docker run -d -p 8026:8025 --name house-price-api ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
           EOF
 
       - name: Test the deployment
