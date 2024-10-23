@@ -1,0 +1,48 @@
+name: MLOPS-DEPLOY
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build -t mlops-deploy:latest .
+
+      - name: Tag Docker image
+        run: docker tag mlops-deploy:latest ${{ secrets.DOCKER_HUB_USERNAME }}/mlops-deploy:latest
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Push to Docker Hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mlops-deploy:latest
+
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
+
+      - name: Connect to SSH and Deploy
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            if [ ! -d "/home/ubuntu/abel.andry" ]; then
+              mkdir /home/ubuntu/abel.andry
+            fi
+            cd /home/ubuntu/abel.andry
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/mlops-deploy:latest
+            docker stop mlops-deploy || true
+            docker rm mlops-deploy || true
+            docker run -d -p 8025:8025 --name mlops-deploy ${{ secrets.DOCKER_HUB_USERNAME }}/mlops-deploy:latest
+          EOF
+
+      - name: Test the deployment
+        run: |
+          curl -X POST http://${{ secrets.SSH_HOST }}:8025/predict \
+          -H "Content-Type: application/json" \
+          -d '{"size": 120, "nb_rooms":3, "garden": 1}'
