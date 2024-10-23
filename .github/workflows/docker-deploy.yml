@@ -46,3 +46,4 @@ jobs:
           curl -X POST http://${{ secrets.SSH_HOST }}:8025/predict \
           -H "Content-Type: application/json" \
           -d '{"size": 120, "nb_rooms":3, "garden": 1}'
+
