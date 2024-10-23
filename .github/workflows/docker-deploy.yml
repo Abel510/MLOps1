@@ -38,12 +38,12 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
             docker stop house-price-api || true
             docker rm house-price-api || true
-            docker run -d -p 8050:8030 --name house-price-api ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
+            docker run -d -p 8000:8000 --name house-price-api ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
           EOF
 
       - name: Test the deployment
         run: |
-          curl -X POST http://${{ secrets.SSH_HOST }}:8050/predict \
+          curl -X POST http://${{ secrets.SSH_HOST }}:8000/predict \
           -H "Content-Type: application/json" \
           -d '{"size": 120, "nb_rooms":3, "garden": 1}'
 
