@@ -1,7 +1,6 @@
 version: '3'
-
 services:
-  house-price-api:
+  web:
     build: .
     ports:
       - "8000:8000"
