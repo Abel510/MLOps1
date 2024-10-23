@@ -14,26 +14,16 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build Docker image
-        run: docker build -t mlops1-house-price-api:latest .
+        run: docker build -t house-price-api:latest .
 
       - name: Tag Docker image
-        run: docker tag mlops1-house-price-api:latest ${{ secrets.DOCKER_HUB_USERNAME }}/mlops1-house-price-api:latest
+        run: docker tag house-price-api:latest ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Push to Docker Hub with retry
-        run: |
-          retry() {
-            n=0
-            until [ "$n" -ge 5 ]; do
-              docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mlops1-house-price-api:latest && break
-              n=$((n+1))
-              echo "Retrying push in 5 seconds..."
-              sleep 5
-            done
-          }
-          retry
+      - name: Push to Docker Hub
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
 
       - name: Install sshpass
         run: sudo apt-get install sshpass
@@ -45,10 +35,10 @@ jobs:
               mkdir /home/ubuntu/abel.andry
             fi
             cd /home/ubuntu/abel.andry
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/mlops1-house-price-api:latest
-            docker stop mlops1-house-price-api || true
-            docker rm mlops1-house-price-api || true  # Ensure container is removed before re-running
-            docker run -d -p 8025:8025 --name mlops1-house-price-api ${{ secrets.DOCKER_HUB_USERNAME }}/mlops1-house-price-api:latest
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
+            docker stop house-price-api || true
+            docker rm house-price-api || true
+            docker run -d -p 8025:8025 --name house-price-api ${{ secrets.DOCKER_HUB_USERNAME }}/house-price-api:latest
           EOF
 
       - name: Test the deployment
