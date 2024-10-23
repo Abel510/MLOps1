@@ -47,4 +47,3 @@ jobs:
           -H "Content-Type: application/json" \
           -d '{"size": 120, "nb_rooms":3, "garden": 1}'
 
-
